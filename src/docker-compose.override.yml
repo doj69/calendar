@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  calendardb:
+    container_name: calendardb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodbcalendardata:/data/db
+
+
+  appointment.api:
+    container_name: appointment.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings:ConnectionString=mongodb://calendardb:27017"
+    depends_on:
+      - calendardb
+    ports:
+      - "8010:80"

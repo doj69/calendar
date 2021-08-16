@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  calendardb:
+    image: mongo
+
+  appointment.api:
+    image: ${DOCKER_REGISTRY-}appointmentapi
+    build:
+      context: .
+      dockerfile: Services/Appointment/Appointment.API/Dockerfile
+
+volumes:
+  mongodbcalendardata:
