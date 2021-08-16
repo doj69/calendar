@@ -43,13 +43,13 @@ namespace Appointment.API.Repositories
 
         public async Task<bool> IsConflictAppointment(AppointmentEntity appointment)
         {
-            var result = await _context.Appointments.Find(filter: x => appointment.End < x.End && x.Start < appointment.End).ToListAsync();
+            var result = await _context.Appointments.Find(filter: x => appointment.End <= x.End && x.Start <= appointment.End).ToListAsync();
             return result.Count > 0;
         }
 
         public async Task<bool> IsConflictAppointmentUpdate(AppointmentEntity appointment)
         {
-            var result = await _context.Appointments.Find(filter: x => appointment.End < x.End && x.Start < appointment.End && x.Id != appointment.Id).ToListAsync();
+            var result = await _context.Appointments.Find(filter: x => appointment.End <= x.End && x.Start <= appointment.End && x.Id != appointment.Id).ToListAsync();
             return result.Count > 0;
         }
 
