@@ -13,5 +13,6 @@ namespace Appointment.API.Repositories
         Task<bool> DeleteAppointment(string id);
         Task<bool> IsConflictAppointment(AppointmentEntity appointment);
         Task<bool> IsConflictAppointmentUpdate(AppointmentEntity appointment);
+        Task<IEnumerable<AppointmentEntity>> FilterAppointmentByColorAsync(string color);
     }
 }

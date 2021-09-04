@@ -17,7 +17,7 @@ namespace Appointment.API
 {
     public class Startup
     {
-        private const string AllowedOriginSetting = "AllowedOrigin";
+        private const string AllowedOriginSetting = "AllowedOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -37,6 +37,16 @@ namespace Appointment.API
             });
             services.AddRouting(options => options.LowercaseUrls = true);
 
+            //services.AddCors(options =>
+            //{
+            //    options.AddDefaultPolicy(builder =>
+            //    {
+            //        builder.WithOrigins(Configuration.GetSection(AllowedOriginSetting).Get<string[]>())
+            //               .WithHeaders("Authorization")
+            //               .WithMethods("GET", "POST", "DELETE", "PATCH");
+            //    });
+            //});
+
             services.AddScoped<IAppointmentContext, AppointmentContext>();
             services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
@@ -53,11 +63,13 @@ namespace Appointment.API
 
                 app.UseCors(builder =>
                 {
-                    builder.WithOrigins(Configuration[AllowedOriginSetting])
+                    builder.WithOrigins(Configuration.GetSection(AllowedOriginSetting).Get<string[]>())
                            .AllowAnyHeader()
                            .AllowAnyMethod();
                 });
             }
+
+            app.UseCors();
 
             app.UseRouting();
 

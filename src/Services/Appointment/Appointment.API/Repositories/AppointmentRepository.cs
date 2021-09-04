@@ -1,8 +1,10 @@
 ﻿using Appointment.API.Data;
 using Appointment.API.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Appointment.API.Repositories
@@ -29,6 +31,14 @@ namespace Appointment.API.Repositories
             return deleteResult.IsAcknowledged && deleteResult.DeletedCount > 0;
         }
 
+        public async Task<IEnumerable<AppointmentEntity>> FilterAppointmentByColorAsync(string color)
+        {
+            FilterDefinition<AppointmentEntity> filter = filterDefinitionBuilder.Regex("Color", new BsonRegularExpression(new Regex(color, RegexOptions.IgnoreCase)));
+            var result = await _context.Appointments.Find(filter).ToListAsync();
+
+            return result;
+        }
+
         public async Task<AppointmentEntity> GetAppointment(string id)
         {
             var result = await _context.Appointments.Find(x => x.Id.Equals(id)).FirstOrDefaultAsync();
@@ -43,13 +53,20 @@ namespace Appointment.API.Repositories
 
         public async Task<bool> IsConflictAppointment(AppointmentEntity appointment)
         {
-            var result = await _context.Appointments.Find(filter: x => appointment.End <= x.End && x.Start <= appointment.End).ToListAsync();
+            var result = await _context.Appointments
+                        .Find(filter: x => x.Start <= appointment.Start && x.End >= appointment.End || 
+                                           x.Start >= appointment.Start && x.Start < appointment.End ||
+                                           x.End > appointment.Start && x.End <= appointment.End)
+                        .ToListAsync();
             return result.Count > 0;
         }
 
         public async Task<bool> IsConflictAppointmentUpdate(AppointmentEntity appointment)
         {
-            var result = await _context.Appointments.Find(filter: x => appointment.End <= x.End && x.Start <= appointment.End && x.Id != appointment.Id).ToListAsync();
+            var result = await _context.Appointments
+                        .Find(filter: x => (x.Start <= appointment.Start && x.End >= appointment.End || 
+                                            x.Start >= appointment.Start && x.Start < appointment.End ||
+                                            x.End > appointment.Start && x.End <= appointment.End) && x.Id != appointment.Id).ToListAsync();
             return result.Count > 0;
         }
 

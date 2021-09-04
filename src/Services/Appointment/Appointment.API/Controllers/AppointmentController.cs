@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -40,6 +41,20 @@ namespace Appointment.API.Controllers
             if (appointment == null)
             {
                 _logger.LogError($"Appointment with id: {id}, not found.");
+                return NotFound();
+            }
+            return Ok(appointment);
+        }
+        
+        [HttpGet("{color}", Name = "FilterAppointmentByColor")]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(AppointmentEntity), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<AppointmentEntity>>> FilterAppointmentByColor([FromRoute]string color)
+        {
+            var appointment = await _repository.FilterAppointmentByColorAsync(color);
+            if (!appointment.Any())
+            {
+                _logger.LogError($"Appointment with color: {color}, not found.");
                 return NotFound();
             }
             return Ok(appointment);
